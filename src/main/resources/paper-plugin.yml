@@ -1,0 +1,6 @@
+name: Guilds
+version: '${project.version}'
+main: com.mineledge.guilds.Guilds
+description: Guilds
+api-version: '1.21.1'
+folia-supported: true
