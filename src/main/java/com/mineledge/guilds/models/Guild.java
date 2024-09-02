@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Guild {
-    private final UUID identification;
+    private final UUID identifier;
     private String tag;
     private String name;
     private final String creationDate;
@@ -17,8 +17,8 @@ public class Guild {
     private final Set<UUID> apprentices;
     private final Set<UUID> recipients;
 
-    public Guild(UUID identification, String tag, String name, UUID master) {
-        this.identification = identification;
+    public Guild(UUID identifier, String tag, String name, UUID master) {
+        this.identifier = identifier;
         this.tag = tag;
         this.name = name;
         creationDate = new SimpleDateFormat("dd/MMM/yyyy").format(new Date());
@@ -29,8 +29,8 @@ public class Guild {
         recipients = new HashSet<>();
     }
 
-    public Guild(UUID identification, String tag, String name, String creationDate, UUID master, Set<UUID> journeymen, Set<UUID> apprentices, Set<UUID> recipients) {
-        this.identification = identification;
+    public Guild(UUID identifier, String tag, String name, String creationDate, UUID master, Set<UUID> journeymen, Set<UUID> apprentices, Set<UUID> recipients) {
+        this.identifier = identifier;
         this.tag = tag;
         this.name = name;
         this.creationDate = creationDate;
@@ -41,8 +41,8 @@ public class Guild {
         this.recipients = recipients;
     }
 
-    public UUID getIdentification() {
-        return identification;
+    public UUID getIdentifier() {
+        return identifier;
     }
 
     public String getTag() {
@@ -129,5 +129,9 @@ public class Guild {
 
     public boolean isRecipient(UUID target) {
         return recipients.contains(target);
+    }
+
+    public boolean isAffiliated(UUID target) {
+        return isMaster(target) || isJourneyman(target) || isApprentice(target);
     }
 }
