@@ -1,5 +1,6 @@
 package com.mineledge.guilds.models;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,7 +10,7 @@ public class Guild {
     private final UUID identification;
     private String tag;
     private String name;
-    private final Date creationDate;
+    private final String creationDate;
 
     private UUID master;
     private final Set<UUID> journeymen;
@@ -20,7 +21,7 @@ public class Guild {
         this.identification = identification;
         this.tag = tag;
         this.name = name;
-        creationDate = new Date();
+        creationDate = new SimpleDateFormat("dd/MMM/yyyy").format(new Date());
 
         this.master = master;
         journeymen = new HashSet<>();
@@ -28,7 +29,7 @@ public class Guild {
         recipients = new HashSet<>();
     }
 
-    public Guild(UUID identification, String tag, String name, Date creationDate, UUID master, Set<UUID> journeymen, Set<UUID> apprentices, Set<UUID> recipients) {
+    public Guild(UUID identification, String tag, String name, String creationDate, UUID master, Set<UUID> journeymen, Set<UUID> apprentices, Set<UUID> recipients) {
         this.identification = identification;
         this.tag = tag;
         this.name = name;
@@ -52,7 +53,7 @@ public class Guild {
         return name;
     }
 
-    public Date getCreationDate() {
+    public String getCreationDate() {
         return creationDate;
     }
 

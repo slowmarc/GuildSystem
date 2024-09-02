@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -80,7 +79,7 @@ public class LocalRepository implements GuildRepository {
         UUID identification = UUID.fromString((String) jsonObject.get("identification"));
         String tag = (String) jsonObject.get("tag");
         String name = (String) jsonObject.get("name");
-        Date creationDate = new Date((String) jsonObject.get("creationDate"));
+        String creationDate = (String) jsonObject.get("date");
 
         UUID master = UUID.fromString((String) jsonObject.get("master"));
         Set<UUID> journeymen = parseUUIDSet((JSONArray) jsonObject.get("journeymen"));
@@ -105,7 +104,7 @@ public class LocalRepository implements GuildRepository {
         jsonObject.put("identification", guild.getIdentification().toString());
         jsonObject.put("tag", guild.getTag());
         jsonObject.put("name", guild.getName());
-        jsonObject.put("creationDate", guild.getCreationDate().toString());
+        jsonObject.put("creationDate", guild.getCreationDate());
 
         jsonObject.put("master", guild.getMaster().toString());
         jsonObject.put("journeymen", parseJsonArray(guild.getJourneymen()));
