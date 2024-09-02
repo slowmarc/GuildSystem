@@ -1,12 +1,14 @@
 package com.mineledge.guilds;
 
-import com.mineledge.guilds.repositories.GuildRepository;
+import com.mineledge.guilds.commands.GuildCommand;
+import com.mineledge.guilds.managers.GuildManager;
 import com.mineledge.guilds.repositories.LocalRepository;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
 public final class Guilds extends JavaPlugin {
+    GuildManager manager;
 
     @Override
     public void onEnable() {
@@ -15,12 +17,15 @@ public final class Guilds extends JavaPlugin {
         saveResource("config.yml", false);
         saveResource("messages.yml", false);
 
-        GuildRepository repository = new LocalRepository(new File(getDataFolder(), "local.json"));
-        repository.load();
+        manager = new GuildManager(new LocalRepository(new File(getDataFolder(), "local.json")));
+        manager.getRepository().load();
+
+        getCommand("guild").setExecutor(new GuildCommand(manager));
     }
 
     @Override
     public void onDisable() {
         getLogger().info("@ Guilds has been disabled!");
+        manager.getRepository().save(manager.getGuilds());
     }
 }

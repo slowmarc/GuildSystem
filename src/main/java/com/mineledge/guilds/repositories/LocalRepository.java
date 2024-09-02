@@ -76,7 +76,7 @@ public class LocalRepository implements GuildRepository {
     }
 
     private Guild parseGuild(JSONObject jsonObject) {
-        UUID identification = UUID.fromString((String) jsonObject.get("identification"));
+        UUID identifier = UUID.fromString((String) jsonObject.get("identifier"));
         String tag = (String) jsonObject.get("tag");
         String name = (String) jsonObject.get("name");
         String creationDate = (String) jsonObject.get("date");
@@ -86,7 +86,7 @@ public class LocalRepository implements GuildRepository {
         Set<UUID> apprentices = parseUUIDSet((JSONArray) jsonObject.get("apprentices"));
         Set<UUID> recipients = parseUUIDSet((JSONArray) jsonObject.get("recipients"));
 
-        return new Guild(identification, tag, name, creationDate, master, journeymen, apprentices, recipients);
+        return new Guild(identifier, tag, name, creationDate, master, journeymen, apprentices, recipients);
     }
 
     private Set<UUID> parseUUIDSet(JSONArray jsonArray) {
@@ -101,7 +101,7 @@ public class LocalRepository implements GuildRepository {
     private JSONObject parseJsonObject(Guild guild) {
         JSONObject jsonObject = new JSONObject();
 
-        jsonObject.put("identification", guild.getIdentification().toString());
+        jsonObject.put("identifier", guild.getIdentifier().toString());
         jsonObject.put("tag", guild.getTag());
         jsonObject.put("name", guild.getName());
         jsonObject.put("creationDate", guild.getCreationDate());
