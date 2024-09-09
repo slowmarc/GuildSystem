@@ -2,55 +2,66 @@ package com.mineledge.guilds.commands;
 
 import com.mineledge.guilds.managers.GuildManager;
 import com.mineledge.guilds.models.Guild;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class GuildCommand implements CommandExecutor {
+public class GuildCommand implements BasicCommand {
     private GuildManager manager;
     private Map<String, GuildSubCommand> subCommands = new HashMap<>();
 
     public GuildCommand(GuildManager manager) {
         this.manager = manager;
         subCommands.put("create", new CreateSubCommand());
+        subCommands.put("disband", new DisbandSubCommand());
         subCommands.put("invite", new InviteSubCommand());
+        subCommands.put("uninvite", new UninviteSubCommand());
+        subCommands.put("join", new JoinSubCommand());
+        subCommands.put("leave", new LeaveSubCommand());
+        subCommands.put("kick", new KickSubCommand());
+        //subCommands.put("promote", new PromoteSubCommand());
+        //subCommands.put("demote", new PromoteSubCommand());
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] arguments) {
+    public void execute(@NotNull CommandSourceStack stack, @NotNull String[] arguments) {
+        CommandSender sender = stack.getSender();
         if (!(sender instanceof Player)) {
             //Sender not a player
-            return true;
+            return;
         }
 
-        GuildSubCommand subCommand = subCommands.get(label);
+        if (arguments.length == 0) {
+            //Invalid arguments
+            return;
+        }
+
+        GuildSubCommand subCommand = subCommands.get(arguments[0]);
         if (subCommand == null) {
             //Invalid subcommand
-            return true;
         } else {
-            if (subCommand.onSubCommand(((Player) sender).getUniqueId(), Arrays.copyOfRange(arguments, 1, arguments.length))) {
+            if (subCommand.execute(((Player) sender).getUniqueId(), Arrays.copyOfRange(arguments, 1, arguments.length))) {
                 manager.getRepository().save(manager.getGuilds());
             }
         }
-
-        return true;
     }
 
     interface GuildSubCommand {
-        boolean onSubCommand(UUID sender, String[] arguments);
+        boolean execute(UUID sender, String[] arguments);
     }
 
     class CreateSubCommand implements GuildSubCommand {
 
         @Override
-        public boolean onSubCommand(UUID sender, String[] arguments) {
+        public boolean execute(UUID sender, String[] arguments) {
             if (arguments.length != 2) {
                 //Invalid arguments
                 return false;
@@ -85,10 +96,32 @@ public class GuildCommand implements CommandExecutor {
         }
     }
 
+    class DisbandSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 0) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender not in a guild
+                return false;
+            } else if (!manager.isPlayerMaster(sender)) {
+                //Sender not the master
+                return false;
+            }
+
+            manager.removeGuild(manager.getGuildByPlayer(sender));
+            return true;
+        }
+    }
+
     class InviteSubCommand implements GuildSubCommand {
 
         @Override
-        public boolean onSubCommand(UUID sender, String[] arguments) {
+        public boolean execute(UUID sender, String[] arguments) {
             if (arguments.length != 1) {
                 //Invalid arguments
                 return false;
@@ -99,7 +132,7 @@ public class GuildCommand implements CommandExecutor {
                 return false;
             }
 
-            if (!manager.isPlayerMaster(sender) || !manager.isPlayerJourneyman(sender)) {
+            if (!manager.isPlayerMaster(sender) && !manager.isPlayerJourneyman(sender)) {
                 //Player is an apprentice.
                 return false;
             }
@@ -116,7 +149,7 @@ public class GuildCommand implements CommandExecutor {
             }
 
             if (guild.isAffiliated(target)) {
-                //Target already in guild
+                //Target already in the guild
                 return false;
             } else if (guild.isRecipient(target)) {
                 //Target already invited
@@ -128,10 +161,50 @@ public class GuildCommand implements CommandExecutor {
         }
     }
 
+    class UninviteSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 1) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Player is not in a guild
+                return false;
+            }
+
+            if (!manager.isPlayerMaster(sender) && !manager.isPlayerJourneyman(sender)) {
+                //Player is an apprentice.
+                return false;
+            }
+
+            Guild guild = manager.getGuildByPlayer(sender);
+            UUID target = Bukkit.getOfflinePlayer(arguments[0]).getUniqueId();
+
+            if (target == null) {
+                //Target doesn't exist
+                return false;
+            } else if (sender.equals(target)) {
+                //Sender is target
+                return false;
+            }
+
+            if (!guild.isRecipient(target)) {
+                //Target not invited
+                return false;
+            }
+
+            guild.removeRecipient(target);
+            return true;
+        }
+    }
+
     class JoinSubCommand implements GuildSubCommand {
 
         @Override
-        public boolean onSubCommand(UUID sender, String[] arguments) {
+        public boolean execute(UUID sender, String[] arguments) {
             if (arguments.length != 1) {
                 //Invalid arguments
                 return false;
@@ -152,6 +225,83 @@ public class GuildCommand implements CommandExecutor {
             }
 
             guild.addApprentice(sender);
+            return true;
+        }
+    }
+
+    class LeaveSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 0) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender not in a guild
+                return false;
+            }
+
+            Guild guild = manager.getGuildByPlayer(sender);
+            if (guild.isMaster(sender)) {
+                //Sender is master
+                return false;
+            }
+
+            if (guild.isJourneyman(sender)) {
+                guild.removeRecipient(sender);
+            }
+            guild.removeApprentice(sender);
+            return true;
+        }
+    }
+
+    class KickSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 1) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender not in a guild
+                return false;
+            } else if (!manager.isPlayerMaster(sender) && !manager.isPlayerJourneyman(sender)) {
+                //Sender is apprentice
+                return false;
+            }
+
+            Guild guild = manager.getGuildByPlayer(sender);
+            UUID target = Bukkit.getOfflinePlayer(arguments[0]).getUniqueId();
+
+            if (target == null) {
+                //Target doesn't exist
+                return false;
+            } else if (sender.equals(target)) {
+                //Sender is target
+                return false;
+            } else if (!guild.isAffiliated(target)) {
+                //Target not in the guild
+                return false;
+            }
+
+            if (guild.isMaster(sender)) {
+                if (guild.isJourneyman(sender)) {
+                    guild.removeJourneyman(sender);
+                }
+                guild.removeApprentice(target);
+            } else {
+                if (guild.isJourneyman(target)) {
+                    //Sender is the same rank as target
+                    return false;
+                } else {
+                    guild.removeApprentice(target);
+                }
+            }
+
             return true;
         }
     }

@@ -21,7 +21,7 @@ public class Guild {
         this.identifier = identifier;
         this.tag = tag;
         this.name = name;
-        creationDate = new SimpleDateFormat("dd/MMM/yyyy").format(new Date());
+        creationDate = new SimpleDateFormat("d/M/yyyy").format(new Date());
 
         this.master = master;
         journeymen = new HashSet<>();

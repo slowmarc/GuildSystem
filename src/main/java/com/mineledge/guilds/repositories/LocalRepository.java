@@ -119,6 +119,7 @@ public class LocalRepository implements GuildRepository {
         for (UUID uuid : uuidSet) {
             jsonArray.add(uuid.toString());
         }
+
         return jsonArray;
     }
 }
