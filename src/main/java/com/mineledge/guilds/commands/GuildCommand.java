@@ -27,8 +27,8 @@ public class GuildCommand implements BasicCommand {
         subCommands.put("join", new JoinSubCommand());
         subCommands.put("leave", new LeaveSubCommand());
         subCommands.put("kick", new KickSubCommand());
-        //subCommands.put("promote", new PromoteSubCommand());
-        //subCommands.put("demote", new PromoteSubCommand());
+        subCommands.put("promote", new PromoteSubCommand());
+        //subCommands.put("demote", new DemoteSubCommand());
     }
 
     @Override
@@ -300,6 +300,48 @@ public class GuildCommand implements BasicCommand {
                 } else {
                     guild.removeApprentice(target);
                 }
+            }
+
+            return true;
+        }
+    }
+
+    class PromoteSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 1) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender not in a guild
+                return false;
+            }
+
+            if (manager.isPlayerApprentice(sender)) {
+                //Sender is an apprentice
+                return false;
+            }
+
+            Guild guild = manager.getGuildByPlayer(sender);
+            UUID target = Bukkit.getOfflinePlayer(arguments[0]).getUniqueId();
+            if (target == null) {
+                //Sender doesn't exist
+                return false;
+            } else if (sender.equals(target)) {
+                //Sender is target
+                return false;
+            } else if (!guild.isAffiliated(target)) {
+                //Target not a in the guild
+                return false;
+            }
+
+            if (manager.isPlayerApprentice(target)) {
+                guild.addJourneyman(target);
+            } else {
+                guild.setMaster(target);
             }
 
             return true;
