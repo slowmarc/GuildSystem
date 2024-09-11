@@ -28,7 +28,7 @@ public class GuildCommand implements BasicCommand {
         subCommands.put("leave", new LeaveSubCommand());
         subCommands.put("kick", new KickSubCommand());
         subCommands.put("promote", new PromoteSubCommand());
-        //subCommands.put("demote", new DemoteSubCommand());
+        subCommands.put("demote", new DemoteSubCommand());
     }
 
     @Override
@@ -318,9 +318,7 @@ public class GuildCommand implements BasicCommand {
             if (!manager.isPlayerAffiliated(sender)) {
                 //Sender not in a guild
                 return false;
-            }
-
-            if (manager.isPlayerApprentice(sender)) {
+            } else if (manager.isPlayerApprentice(sender)) {
                 //Sender is an apprentice
                 return false;
             }
@@ -334,7 +332,7 @@ public class GuildCommand implements BasicCommand {
                 //Sender is target
                 return false;
             } else if (!guild.isAffiliated(target)) {
-                //Target not a in the guild
+                //Target not in the guild
                 return false;
             }
 
@@ -344,6 +342,47 @@ public class GuildCommand implements BasicCommand {
                 guild.setMaster(target);
             }
 
+            return true;
+        }
+    }
+
+    class DemoteSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 1) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender is not in a guild
+                return false;
+            } else if (manager.isPlayerApprentice(sender)) {
+                //Sender is an apprentice
+                return false;
+            }
+
+            Guild guild = manager.getGuildByPlayer(sender);
+            UUID target = Bukkit.getOfflinePlayer(arguments[0]).getUniqueId();
+
+            if (target == null) {
+                //Target doesn't exist
+                return false;
+            } else if (sender.equals(target)) {
+                //Sender is target
+                return false;
+            } else if (!guild.isAffiliated(target)) {
+                //Target is not in the guild
+                return false;
+            }
+
+            if (manager.isPlayerApprentice(target)) {
+                //Target already an apprentice
+                return false;
+            }
+
+            guild.removeJourneyman(target);
             return true;
         }
     }
