@@ -1,0 +1,145 @@
+successes:
+  commands:
+    guild:
+      subcommands:
+        help:
+          sender-message: "THIS IS THE HELP MESSAGE"
+
+        create:
+          sender-message: "&a{tag} {name} has been created!"
+
+        disband:
+          sender-message: "&aYou have successfully disbanded {tag} {name}!"
+          affiliated-message: "&c{sender} has disbanded your {tag} {name}!"
+
+        invite:
+          sender-message: "&aYou have invited {target} to join {tag} {name}!"
+          target-message: "&aYou have been invited to join {tag} {name}!"
+          affiliated-message: "&a{sender} has invited {target} to join {tag} {name}!"
+
+        uninvite:
+          sender-message: "&aYou have revoked the invitation to {target} for {tag} {name}!"
+          target-message: "&cYour invitation by {sender} to join {target} {name} has been revoked!"
+          affiliated-message: "&c{sender} has revoked {target}'s invitation!"
+
+        join:
+          sender-message: "&aYou have joined {tag} {name}!"
+          affiliated-message: "&a{sender} has joined {tag} {name}!"
+
+        leave:
+          sender-message: "&aYou have left {tag} {name}!"
+          affiliated-message: "&c{sender} has left {tag} {name}!"
+
+        kick:
+          sender-message: "&aYou have kicked {target} from {tag} {name}!"
+          target-message: "&cYou have been kicked by {sender} from {tag} {name}!"
+          affiliated-message: "&c{target} has been kicked by {sender} from {tag} {name}!"
+
+        promote:
+          sender-message: "&aYou have promoted {target} in {tag} {name}!"
+          target-message: "&aYou have been promoted by {sender} in {tag} {name}!"
+          affiliated-message: "&a{target} has been promoted by {sender} in {tag} {name}!"
+
+        demote:
+          sender-message: "&aYou have demoted {target} in {tag} {name}!"
+          target-message: "&cYou have been demoted by {sender} in {tag} {name}!"
+          affiliated-message: "&c{target} has been demoted by {sender} in {tag} {name}!"
+
+        retag:
+          sender-message: "&aYou have retagged {name} to {tag}!"
+          affiliated-message: "&a{sender} has retagged {name} to {tag}!"
+
+        rename:
+          sender-message: "&aYou have renamed {tag} to {name}!"
+          affiliated-message: "&a{sender} has renamed {tag} to {name}!"
+
+errors:
+  commands:
+    guild:
+      illegal-syntax: "&cIllegal usage of command. Please use '/guild help' for help."
+
+      subcommands:
+        help:
+          illegal-syntax: "&c/guild help"
+
+        create:
+          illegal-syntax: "&c/guild create (tag) (name)"
+          sender-is-affiliated: "&cYou already affiliate with {tag} {name}!"
+          illegal-tag: "&c{tag} contains non-alphanumeric characters!"
+          illegal-name: "&c{name} contains non-alphanumeric characters!"
+          tag-is-taken: "&c{tag} is taken by another guild!"
+          name-is-taken: "&c{name} is taken by another guild!"
+
+        disband:
+          illegal-syntax: "&c/guild disband"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-not-master: "&cYou need to be {tag} {name}'s master in order to perform this action!"
+
+        invite:
+          illegal-syntax: "&c/guild invite (player)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-is-apprentice: "&cYou need to be at least a journeyman of {tag} {name} in order to perform this action!"
+          sender-is-target: "&cYou can't perform this action on yourself!"
+          target-doesn't-joined: "&c{target} doesn't exist!"
+          target-is-affiliated: "&c{target} already affiliates to {tag} {name}!"
+          target-is-recipient: "&c{target} already has a pending invitation by {tag} {name}!"
+
+        uninvite:
+          illegal-syntax: "&c/guild uninvite (player)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-is-apprentice: "&cYou need to be at least a journeyman of {tag} {name} in order to perform this action!"
+          sender-is-target: "&cYou can't perform this action on yourself!"
+          target-doesn't-exist: "&c{target} doesn't exist!"
+          target-is-affiliated: "&c{target} already affiliates to {tag} {name}!"
+          target-not-recipient: "&c{target} doesn't have a pending invitation by {tag} {name}"
+
+        join:
+          illegal-syntax: "&c/guild join (name)"
+          sender-is-affiliated: "&cYou already affiliate with {tag} {name}!"
+          guild-doesn't-exist: "&cA guild by the name {name} doesn't exist!"
+          sender-not-recipient: "&c{tag} {name} has not invited you!"
+
+        leave:
+          illegal-syntax: "&c/guild leave"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-is-master: "&cYou are {tag} {name}'s master! Promote a journeyman to master in order to be able to perform this action!"
+
+        kick:
+          illegal-syntax: "&c/guild kick (player)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-is-apprentice: "&cYou need to be at least a journeyman of {tag} {name} in order to perform this action!"
+          sender-is-target: "&cYou can't perform this action on yourself!"
+          target-doesn't-exist: "&c{target} doesn't exist!"
+          target-not-affiliated: "&c{target} doesn't affiliate with {tag} {name}!"
+          target-not-inferior: "&cThis action can't be performed since {target} is not inferior to you!"
+
+        promote:
+          illegal-syntax: "&c/guild promote (player)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-not-master: "&cYou need to be {tag} {name}'s master in order to perform this action!"
+          sender-is-target: "&cYou can't perform this action on yourself!"
+          target-doesn't-exist: "&c{target} doesn't exist!"
+          target-not-affiliated: "&c{target} doesn't affiliate with {tag} {name}!"
+
+        demote:
+          illegal-syntax: "&c/guild demote (player)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-not-master: "&cYou need to be {tag} {name}'s master in order to perform this action!"
+          sender-is-target: "&cYou can't perform this action on yourself!"
+          target-doesn't-exist: "&c{target} doesn't exist!"
+          target-not-affiliated: "&c{target} doesn't affiliate with {tag} {name}!"
+          target-is-apprentice: "&c{target} is already an apprentice of {tag} {name}!"
+
+        retag:
+          illegal-syntax: "&c/guild retag (tag)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-not-master: "&cYou need to be {tag} {name}'s master in order to perform this action!"
+          illegal-tag: "&c{tag} contains non-alphanumeric characters!"
+          tag-is-taken: "&c{tag} is taken by another guild!"
+
+        rename:
+          illegal-syntax: "&c/guild rename (name)"
+          sender-not-affiliated: "&cYou do not affiliate with any guild!"
+          sender-not-master: "&cYou need to be {tag} {name}'s master in order to perform this action!"
+          illegal-name: "&c{name} contains non-alphanumeric characters!"
+          name-is-taken: "&c{name} is taken by another guild!"

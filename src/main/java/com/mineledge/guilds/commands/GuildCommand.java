@@ -1,5 +1,6 @@
 package com.mineledge.guilds.commands;
 
+import com.mineledge.guilds.configurations.GuildMessages;
 import com.mineledge.guilds.managers.GuildManager;
 import com.mineledge.guilds.models.Guild;
 import io.papermc.paper.command.brigadier.BasicCommand;
@@ -16,10 +17,14 @@ import java.util.UUID;
 
 public class GuildCommand implements BasicCommand {
     private GuildManager manager;
+    private GuildMessages messages;
     private Map<String, GuildSubCommand> subCommands = new HashMap<>();
 
-    public GuildCommand(GuildManager manager) {
+    public GuildCommand(GuildManager manager, GuildMessages messages) {
         this.manager = manager;
+        this.messages = messages;
+
+        //subCommands.put("help", new HelpSubCommand());
         subCommands.put("create", new CreateSubCommand());
         subCommands.put("disband", new DisbandSubCommand());
         subCommands.put("invite", new InviteSubCommand());
@@ -29,6 +34,8 @@ public class GuildCommand implements BasicCommand {
         subCommands.put("kick", new KickSubCommand());
         subCommands.put("promote", new PromoteSubCommand());
         subCommands.put("demote", new DemoteSubCommand());
+        subCommands.put("retag", new RetagSubCommand());
+        //subCommands.put("rename", new RenameSubCommand());
     }
 
     @Override
@@ -62,37 +69,38 @@ public class GuildCommand implements BasicCommand {
 
         @Override
         public boolean execute(UUID sender, String[] arguments) {
-            if (arguments.length != 2) {
-                //Invalid arguments
+            try {
+                if (arguments.length != 2) {
+                    throw new Exception(messages.getErrorMessage("create", "illegal-syntax"));
+                }
+
+                if (manager.isPlayerAffiliated(sender)) {
+                    throw new Exception(messages.getErrorMessage("create", "sender-is-affiliated"));
+                }
+
+                String tag = arguments[0];
+                String name = arguments[1];
+
+                if (tag.matches(".*[^a-zA-Z0-9].*")) {
+                    throw new Exception(messages.getTagErrorMessage("create", "illegal-tag", tag));
+                } else if (name.matches(".*[^a-zA-Z0-9].*")) {
+                    throw new Exception(messages.getNameErrorMessage("create", "illegal-name", name));
+                }
+
+                if (manager.isGuildTagTaken(tag)) {
+                    throw new Exception(messages.getTagErrorMessage("create", "tag-is-taken", tag));
+                } else if (manager.isGuildNameTaken(name)) {
+                    throw new Exception(messages.getNameErrorMessage("create", "name-is-taken", name));
+                }
+
+
+                manager.addGuild(tag, name, sender);
+                Bukkit.getPlayer(sender).sendMessage(messages.getGuildSuccessMessage("create", "sender-message", tag, name));
+                return true;
+            } catch (Exception exception) {
+                Bukkit.getPlayer(sender).sendMessage(exception.getMessage());
                 return false;
             }
-
-            if (manager.isPlayerAffiliated(sender)) {
-                //Player already in a guild
-                return false;
-            }
-
-            String tag = arguments[0];
-            String name = arguments[1];
-
-            if (tag.matches(".*[^a-zA-Z0-9].*")) {
-                //Tag contains non-alphanumeric characters
-                return false;
-            } else if (name.matches(".*[^a-zA-Z0-9].*")) {
-                //Name contains non-alphanumeric characters
-                return false;
-            }
-
-            if (manager.isGuildTagTaken(tag)) {
-                //Guild tag already exists
-                return false;
-            } else if (manager.isGuildNameTaken(name)) {
-                //Guild name already exists
-                return false;
-            }
-
-            manager.addGuild(arguments[0], arguments[1], sender);
-            return true;
         }
     }
 
@@ -191,7 +199,10 @@ public class GuildCommand implements BasicCommand {
                 return false;
             }
 
-            if (!guild.isRecipient(target)) {
+            if (guild.isAffiliated(target)) {
+                //Target already in the guild
+                return false;
+            } else if (!guild.isRecipient(target)) {
                 //Target not invited
                 return false;
             }
@@ -294,8 +305,8 @@ public class GuildCommand implements BasicCommand {
                 }
                 guild.removeApprentice(target);
             } else {
-                if (guild.isJourneyman(target)) {
-                    //Sender is the same rank as target
+                if (guild.isMaster(target) || guild.isJourneyman(target)) {
+                    //Target not inferior
                     return false;
                 } else {
                     guild.removeApprentice(target);
@@ -318,8 +329,8 @@ public class GuildCommand implements BasicCommand {
             if (!manager.isPlayerAffiliated(sender)) {
                 //Sender not in a guild
                 return false;
-            } else if (manager.isPlayerApprentice(sender)) {
-                //Sender is an apprentice
+            } else if (!manager.isPlayerMaster(sender)) {
+                //Sender not a master
                 return false;
             }
 
@@ -358,8 +369,8 @@ public class GuildCommand implements BasicCommand {
             if (!manager.isPlayerAffiliated(sender)) {
                 //Sender is not in a guild
                 return false;
-            } else if (manager.isPlayerApprentice(sender)) {
-                //Sender is an apprentice
+            } else if (!manager.isPlayerMaster(sender)) {
+                //Sender is not a master
                 return false;
             }
 
@@ -383,6 +394,37 @@ public class GuildCommand implements BasicCommand {
             }
 
             guild.removeJourneyman(target);
+            return true;
+        }
+    }
+
+    class RetagSubCommand implements GuildSubCommand {
+
+        @Override
+        public boolean execute(UUID sender, String[] arguments) {
+            if (arguments.length != 1) {
+                //Invalid arguments
+                return false;
+            }
+
+            if (!manager.isPlayerAffiliated(sender)) {
+                //Sender is not in a guild
+                return false;
+            } else if (manager.isPlayerMaster(sender)) {
+                //Sender is not the master
+                return false;
+            }
+
+            String tag = arguments[0];
+            if (tag.matches(".*[^a-zA-Z0-9].*")) {
+                //Tag contains non-alphanumeric characters
+                return false;
+            } else if (manager.isGuildTagTaken(tag)) {
+                //Tag is taken
+                return false;
+            }
+
+            manager.getGuildByPlayer(sender).setTag(tag);
             return true;
         }
     }
