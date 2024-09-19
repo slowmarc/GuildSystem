@@ -12,7 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
-public final class Guilds extends JavaPlugin {
+public final class GuildSystem extends JavaPlugin {
 
     @Override
     public void onEnable() {

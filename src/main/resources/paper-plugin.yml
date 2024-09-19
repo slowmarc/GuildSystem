@@ -1,6 +1,6 @@
-name: Guilds
+name: GuildSystem
 version: '${project.version}'
-main: com.mineledge.guilds.Guilds
+main: com.mineledge.guilds.GuildSystem
 description: Guilds
 api-version: '1.21.1'
 folia-supported: true

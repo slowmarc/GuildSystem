@@ -3,14 +3,25 @@ successes:
     guild:
       subcommands:
         help:
-          sender-message: "THIS IS THE HELP MESSAGE"
+          sender-message: "&d/guild help &7->&d Displays this message\n
+          &d/guild create (tag) (name) &7->&d Creates a guild\n
+          &d/guild disband &7->&d Disbands the guild\n
+          &d/guild invite (player) &7->&d Invites a player\n
+          &d/guild uninvite (player) &7->&d Revokes the invitation of a player\n
+          &d/guild join (name) &7->&d Joins a guild\n
+          &d/guild leave &7->&d Leaves the guild\n
+          &d/guild kick (player) &7->&d Kicks a player\n
+          &d/guild promote (player) &7->&d Promotes a player\n
+          &d/guild demote (player) &7->&d Demotes a player\n
+          &d/guild retag (tag) &7->&d Changes the guild's tag\n
+          &d/guild rename (name) &7->&d Changes the guild's name"
 
         create:
           sender-message: "&a{tag} {name} has been created!"
 
         disband:
           sender-message: "&aYou have successfully disbanded {tag} {name}!"
-          affiliated-message: "&c{sender} has disbanded your {tag} {name}!"
+          affiliated-message: "&c{sender} has disbanded {tag} {name}!"
 
         invite:
           sender-message: "&aYou have invited {target} to join {tag} {name}!"
@@ -20,7 +31,7 @@ successes:
         uninvite:
           sender-message: "&aYou have revoked the invitation to {target} for {tag} {name}!"
           target-message: "&cYour invitation by {sender} to join {target} {name} has been revoked!"
-          affiliated-message: "&c{sender} has revoked {target}'s invitation!"
+          affiliated-message: "&c{sender} has revoked {target}'s invitation from {tag} {name}!"
 
         join:
           sender-message: "&aYou have joined {tag} {name}!"
@@ -56,6 +67,7 @@ successes:
 errors:
   commands:
     guild:
+      sender-not-player: "&cOnly players can execute this command!"
       illegal-syntax: "&cIllegal usage of command. Please use '/guild help' for help."
 
       subcommands:
@@ -80,7 +92,7 @@ errors:
           sender-not-affiliated: "&cYou do not affiliate with any guild!"
           sender-is-apprentice: "&cYou need to be at least a journeyman of {tag} {name} in order to perform this action!"
           sender-is-target: "&cYou can't perform this action on yourself!"
-          target-doesn't-joined: "&c{target} doesn't exist!"
+          target-doesn't-exist: "&c{target} doesn't exist!"
           target-is-affiliated: "&c{target} already affiliates to {tag} {name}!"
           target-is-recipient: "&c{target} already has a pending invitation by {tag} {name}!"
 
@@ -111,7 +123,7 @@ errors:
           sender-is-target: "&cYou can't perform this action on yourself!"
           target-doesn't-exist: "&c{target} doesn't exist!"
           target-not-affiliated: "&c{target} doesn't affiliate with {tag} {name}!"
-          target-not-inferior: "&cThis action can't be performed since {target} is not inferior to you!"
+          target-not-inferior: "&cThis action can't be performed since {target} is not inferior to you in {tag} {name}!"
 
         promote:
           illegal-syntax: "&c/guild promote (player)"
